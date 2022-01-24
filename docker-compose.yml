@@ -1,0 +1,64 @@
+version: "2.2" #indica la version de docker compose a utilizar
+services: #comienza la declaracion de servicios
+  wireshark:
+    image: lscr.io/linuxserver/wireshark
+    container_name: wireshark
+    cap_add:
+      - NET_ADMIN #proporciona privilegios de red al contenedor
+    network_mode: host #el contenedor se vincula a la red del host, lo cual permite acceder a la interfaz de red de docker y esnifar el trafico de todos los contenedores
+    environment:
+      - PUID=1000 
+      - PGID=1000
+      - TZ=Europe/London
+    ports:
+      - 3000:3000 #optional
+    restart: unless-stopped
+  asir_bind: #nombre del servicio
+    image: internetsystemsconsortium/bind9:9.16 #imagen de docker a utilizar, se descargará del repositorio si no existe en local
+    ports: #redireccionamiento de puertos
+      - 53:53 #puerto del host:puerto del contenedor
+    volumes: #volumenes que utilizará el contenedor
+      - configure:/etc/bind #asocia el volumen "configure" a la ruta "/etc/bind" del contenedor
+    networks: #configuracion de red 
+       br2: #red que utilizará el contenedor
+        ipv4_address: 10.0.0.88 #ip estatica asignada dentro de la red
+  asir_apache: #declaracion de otro servicio
+    image: httpd #imagen de apache
+    ports:
+      - 80:80 #puerto del host:puerto del contenedor
+    volumes: #volumenes necesarios para la configuracion de apache
+      - htdocs:/usr/local/apache2/htdocs
+      - apacheconf:/usr/local/apache2/conf
+    stdin_open: true  # docker run -i
+    tty: true        
+    networks: #configuracion de red 
+       br2: #red que utilizará el contenedor
+        ipv4_address: 10.0.0.74 #ip estatica asignada dentro de la red
+    dns: #configuraciónn DNS
+       - 10.0.0.88 #dns asignado al contenedor (sustituye configuracion por defecto y apunta al otro contenedor, que corresponde a un servidor DNS con IP estatica)
+  asir_cliente:
+    image: kasmweb/desktop:1.10.0-rolling #cliente que utilizaremos (escritorio)
+    ports:
+      - 6901:6901
+    networks: #configuracion de red 
+       br2: #red que utilizará el contenedor
+    dns: #configuraciónn DNS
+       - 10.0.0.88
+    stdin_open: true 
+    tty: true
+    environment: #permite configurar variables de entorno (en este caso la contraseña)
+      VNC_PW: prueba   
+volumes: #declaracion de volumenes
+    configure: 
+    htdocs:
+    apacheconf:
+    wireconfi:
+networks: #declaracion de red
+  br2: #se indica que se va a utilizar una red llamada br 1 y se crea, si ya existiera previamente se indicaria con "external: True"
+    driver: bridge #modo en que se va a crear la red
+    ipam: #llamada al gestor de IPs de docker
+      driver: default 
+      config: #configuracion de las IPs
+        - subnet: 10.0.0.0/24 #creacion de una subred cuyas IPs utilizará la red
+          gateway: 10.0.0.1 #puerta de enlace
+          
