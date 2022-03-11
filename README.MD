@@ -34,7 +34,7 @@ Utilizando el navegador accedemos a la IP del contenedor con el servidor web (10
 
 Abrimos el volumen "htdocs". Este volumen corresponde a "/usr/local/apache2/htdocs" que es el directorio que utiliza Apache para proporcionar el contenido web. Creamos dos carpetas y en su interior creamos un archivo index.html con el contenido html que queramos.
 
-Abrimos el volumen "apacheconf", que corresponde a "/usr/local/apache2/conf" para acceder a las archivos de configuracion de apache. Entramos en la carpeta extra y abrimos el archivo httpd-vhosts.conf. Este archivo nos permite configurar los VirtualHost. Con ellos podemos hacer que nuestro Apache sirva distintas paginas web en funcion de la url que se solicite y utilizando una misma direccion IP. Estos son dos ejemplos de VirtualHost:
+Abrimos el volumen "apacheconf", que corresponde a "/usr/local/apache2/conf", para acceder a las archivos de configuracion de apache. Entramos en la carpeta extra y abrimos el archivo httpd-vhosts.conf. Este archivo nos permite configurar los VirtualHost. Con ellos podemos hacer que nuestro Apache sirva distintas paginas web en funcion de la url que se solicite y utilizando una misma direccion IP. Estos son dos ejemplos de VirtualHost:
 
 ```
 <VirtualHost *:80>
@@ -57,9 +57,13 @@ Abrimos el volumen "apacheconf", que corresponde a "/usr/local/apache2/conf" par
 Basicamente las opciones a configurar son: 
 
 **-ServerAdmin**: direccion de correo del administrador
+
 **-DocumentRoot**: ruta en la que se encuentra el archivo index.html de cada virtual host
+
 **-ServerName**: nombre de dominio del virtual host
+
 **-ErrorLog**: ruta donde se almacenará el log de errores
+
 **-CustomLog**: ruta donde se almacenará el log de acceso
 
 Guardamos y abrimos el archivo httpd.conf, en el cual descomentamos la linea 524
@@ -68,7 +72,7 @@ Guardamos y abrimos el archivo httpd.conf, en el cual descomentamos la linea 524
 Include conf/extra/httpd-vhosts.conf
 ```
 
-Para incluir el archivo vhosts que acabamos de modificar dentro del archivo de configuración principal de Apache. Reiniciamos el servicio al finalizar.
+Para incluir dentro del archivo de configuración principal de Apache el archivo httpd-vhosts que acabamos de modificar. Reiniciamos el servicio al finalizar.
 
 De esta forma, al escribir la dirección url (maquina1.prueba.com o www.prueba.com) el servidor DNS nos enviará la direccion IP del servidor Apache y Apache atenderá cualquier peticion por el puerto 80 para servir el index.html correspondiente a la dirección que se le solicite en la peticion entrante.
 
@@ -89,12 +93,19 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ser
 
 
 **-openssl:** es la herramienta de línea de comandos básica para crear y administrar certificados, claves, y otros archivos de OpenSSL.
+
 **-req:** este subcomando especifica que deseamos usar la administración de la solicitud de firma de certificados (CSR) X.509. El “X.509” es un estándar de infraestructura de claves públicas al que se adecuan SSL y TLS para la administración de claves y certificados a través de él. Queremos crear un nuevo certificado X.509, por lo que usaremos este subcomando.
+
 **--x509:** modifica aún más el subcomando anterior al indicar a la utilidad que deseamos crear un certificado autofirmado en lugar de generar una solicitud de firma de certificados, como normalmente sucede.
+
 **--nodes:** indica a OpenSSL que omita la opción para proteger nuestro certificado con una frase de contraseña. Necesitamos que Apache pueda leer el archivo, sin intervención del usuario, cuando se inicie el servidor. Una frase de contraseña evitaría que esto suceda porque tendríamos que ingresarla tras cada reinicio.
+
 **--days 365:** esta opción establece el tiempo durante el cual el certificado se considerará válido. En este caso, lo configuramos por un año.
+
 **--newkey rsa:2048:** especifica que deseamos generar un nuevo certificado y una nueva clave al mismo tiempo. No creamos la clave que se requiere para firmar el certificado en un paso anterior, por lo que debemos crearla junto con el certificado. La parte rsa:2048 le indica que cree una clave RSA de 2048 bits de extensión.
+
 **--keyout:** esta línea indica a OpenSSL dónde colocar el archivo de clave privada generado que estamos creando.
+
 **--out:** indica a OpenSSL dónde colocar el certificado que creamos.
 
 Como se mencionó anteriormente, estas opciones crearán un archivo de clave y un certificado. Se harán algunas preguntas sobre nuestro servidor con el fin de insertar la información de forma correcta en el certificado.
