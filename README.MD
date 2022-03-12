@@ -144,4 +144,10 @@ Guardamos todos los cambios, reiniciamos el servicio, accedemos a Kasm_Desktop y
 Recibiremos un aviso confirmandonos que deseamos acceder a la pagina (esto es consecuencia de utilizar un certificado autofirmado) y al aceptar la veremos en pantalla. A traves de las opciones del navegador podemos acceder a la información que hayamos introducido en nuestro certificado.
 
 
+## **-Configuración WireShark**
 
+Accedemos a Wireshark abriendo un navegador de internet en nuestra maquina host. Introducimos la direccion IP y el puerto asignados al contenedor de Wireshark y se abrirá la interfaz grafica.
+
+Desde ella, como el contenedor de Wireshark esta vinculado a red de la maquina anfitrion, accedemos a la interfaz de red de docker correspondiente a la red en la que estan situados los contenedores cuyo trafico queremos interceptar (la red BR2 creada en el Compose, para la cual docker creará una interfaz interna).
+
+Aqui podemos interceptar los paquetes http y posteriormente los https para ver como en los primeros podemos leer el contenido html como si fuera texto plano, mientras que en los segundos se encuentra encriptado.
